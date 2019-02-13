@@ -258,6 +258,9 @@ type KanikoBuild struct {
 	// DockerConfig describes how to mount the local Docker configuration into the
 	// Kaniko pod.
 	DockerConfig *DockerConfig `yaml:"dockerConfig,omitempty"`
+
+	// AWSSecret
+	AWSSecret *AWSSecret `yaml:"awsSecret,omitempty"`
 }
 
 // DockerConfig contains information about the docker `config.json` to mount.
@@ -266,6 +269,13 @@ type DockerConfig struct {
 	Path string `yaml:"path,omitempty"`
 
 	// SecretName is the Kubernetes secret that will hold the Docker configuration.
+	SecretName string `yaml:"secretName,omitempty"`
+}
+
+// AWSSecret contains information about the AWS credentials to mount
+type AWSSecret struct {
+	// Path to the AWS `credentials`
+	Path       string `yaml:"path,omitempty"`
 	SecretName string `yaml:"secretName,omitempty"`
 }
 

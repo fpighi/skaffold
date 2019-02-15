@@ -259,8 +259,8 @@ type KanikoBuild struct {
 	// Kaniko pod.
 	DockerConfig *DockerConfig `yaml:"dockerConfig,omitempty"`
 
-	// AWSSecret
-	AWSSecret *AWSSecret `yaml:"awsSecret,omitempty"`
+	// Kaniko pod secrets
+	Secrets []Secret `yaml:"secrets,omitempty"`
 }
 
 // DockerConfig contains information about the docker `config.json` to mount.
@@ -272,11 +272,12 @@ type DockerConfig struct {
 	SecretName string `yaml:"secretName,omitempty"`
 }
 
-// AWSSecret contains information about the AWS credentials to mount
-type AWSSecret struct {
-	// Path to the AWS `credentials`
-	Path       string `yaml:"path,omitempty"`
-	SecretName string `yaml:"secretName,omitempty"`
+// Secret represens a Kubernetes secret that is mounted
+type Secret struct {
+	MountPath     string `yaml:"mountPath,omitempty"`
+	MountFileName string `yaml:"mapFileName,omitempty"`
+	Name          string `yaml:"name,omitempty"`
+	Path          string `yaml:"path,omitempty"`
 }
 
 type TestConfig []*TestCase

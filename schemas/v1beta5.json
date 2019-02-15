@@ -329,6 +329,13 @@
         "dockerConfig": {
           "$ref": "#/definitions/DockerConfig",
           "description": "describes how to mount the local Docker configuration into the Kaniko pod."
+        },
+        "secrets": {
+          "items": {
+            "$ref": "#/definitions/Secret"
+          },
+          "type": "array",
+          "description": "Kaniko pod secrets"
         }
       },
       "description": "describes how to do an on-cluster build using \u003ca href=\"https://github.com/GoogleContainerTools/kaniko\"\u003eKaniko\u003c/a\u003e."
@@ -347,6 +354,27 @@
         }
       },
       "description": "contains information about the docker \u003ccode\u003econfig.json\u003c/code\u003e to mount."
+    },
+    "Secret": {
+      "properties": {
+        "mountPath": {
+          "type": "string",
+          "default": "\"\""
+        },
+        "mapFileName": {
+          "type": "string",
+          "default": "\"\""
+        },
+        "name": {
+          "type": "string",
+          "default": "\"\""
+        },
+        "path": {
+          "type": "string",
+          "default": "\"\""
+        }
+      },
+      "description": "represens a Kubernetes secret that is mounted"
     },
     "TestConfig": {
       "items": {

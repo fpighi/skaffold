@@ -86,47 +86,55 @@ func podTemplate(cfg *latest.KanikoBuild, args []string) *v1.Pod {
 		},
 	}
 
-	if cfg.DockerConfig == nil {
-		return pod
-	}
+	if cfg.DockerConfig != nil {
+		dockerConfigVolumeMount := v1.VolumeMount{
+			Name:      constants.DefaultKanikoDockerConfigSecretName,
+			MountPath: constants.DefaultKanikoDockerConfigPath,
+		}
 
-	dockerConfigVolumeMount := v1.VolumeMount{
-		Name:      constants.DefaultKanikoDockerConfigSecretName,
-		MountPath: constants.DefaultKanikoDockerConfigPath,
-	}
-	awsSecretVolumeMount := v1.VolumeMount{
-		Name:      constants.DefaultKanikoAWSSecretName,
-		MountPath: constants.DefaultKanikoAWSSecretPath,
-	}
+		pod.Spec.Containers[0].VolumeMounts = append(
+			pod.Spec.Containers[0].VolumeMounts,
+			dockerConfigVolumeMount,
+		)
 
-	pod.Spec.Containers[0].VolumeMounts = append(
-		pod.Spec.Containers[0].VolumeMounts,
-		dockerConfigVolumeMount,
-		awsSecretVolumeMount,
-	)
-
-	dockerConfigVolume := v1.Volume{
-		Name: constants.DefaultKanikoDockerConfigSecretName,
-		VolumeSource: v1.VolumeSource{
-			Secret: &v1.SecretVolumeSource{
-				SecretName: cfg.DockerConfig.SecretName,
+		dockerConfigVolume := v1.Volume{
+			Name: constants.DefaultKanikoDockerConfigSecretName,
+			VolumeSource: v1.VolumeSource{
+				Secret: &v1.SecretVolumeSource{
+					SecretName: cfg.DockerConfig.SecretName,
+				},
 			},
-		},
-	}
-	awsSecretVolume := v1.Volume{
-		Name: constants.DefaultKanikoAWSSecretName,
-		VolumeSource: v1.VolumeSource{
-			Secret: &v1.SecretVolumeSource{
-				SecretName: cfg.AWSSecret.SecretName,
-			},
-		},
+		}
+
+		pod.Spec.Volumes = append(
+			pod.Spec.Volumes,
+			dockerConfigVolume,
+		)
 	}
 
-	pod.Spec.Volumes = append(
-		pod.Spec.Volumes,
-		dockerConfigVolume,
-		awsSecretVolume,
-	)
+	for _, secret := range cfg.Secrets {
+		secretVolumeMount := v1.VolumeMount{
+			Name:      secret.Name,
+			MountPath: secret.MountPath,
+		}
+		pod.Spec.Containers[0].VolumeMounts = append(
+			pod.Spec.Containers[0].VolumeMounts,
+			secretVolumeMount,
+		)
+		secretVolume := v1.Volume{
+			Name: secret.Name,
+			VolumeSource: v1.VolumeSource{
+				Secret: &v1.SecretVolumeSource{
+					SecretName: secret.Name,
+				},
+			},
+		}
+
+		pod.Spec.Volumes = append(
+			pod.Spec.Volumes,
+			secretVolume,
+		)
+	}
 
 	return pod
 }

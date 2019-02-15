@@ -91,8 +91,8 @@ build:
     dockerConfig:
       secretName: config-name
       path: /kaniko/.docker
-    awsSecret:
-      secretName: aws-secret-name
+    secrets:
+    - name: aws-secret-name
       path: /root/.aws
 `
 	badConfig = "bad config"
@@ -176,7 +176,7 @@ func TestParseConfig(t *testing.T) {
 				withKanikoBuild("demo", "secret-name", "nskaniko", "/secret.json", "120m",
 					withGitTagger(),
 					withDockerConfig("config-name", "/kaniko/.docker"),
-					withAWSSecret("aws-secret-name", "/root/.aws"),
+					withSecret("aws-secret-name", "/root/.aws"),
 				),
 				withKubectlDeploy("k8s/*.yaml"),
 			),
@@ -283,12 +283,15 @@ func withDockerConfig(secretName string, path string) func(*latest.BuildConfig) 
 	}
 }
 
-func withAWSSecret(secretName string, path string) func(*latest.BuildConfig) {
+func withSecret(secretName string, path string) func(*latest.BuildConfig) {
 	return func(cfg *latest.BuildConfig) {
-		cfg.KanikoBuild.AWSSecret = &latest.AWSSecret{
-			SecretName: secretName,
-			Path:       path,
-		}
+		cfg.KanikoBuild.Secrets = append(
+			cfg.KanikoBuild.Secrets,
+			latest.Secret{
+				Name: secretName,
+				Path: path,
+			},
+		)
 	}
 }
 

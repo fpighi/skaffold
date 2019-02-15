@@ -23,6 +23,7 @@ import (
 	"github.com/GoogleContainerTools/skaffold/pkg/skaffold/color"
 	"github.com/GoogleContainerTools/skaffold/pkg/skaffold/constants"
 	"github.com/GoogleContainerTools/skaffold/pkg/skaffold/kubernetes"
+	"github.com/GoogleContainerTools/skaffold/pkg/skaffold/schema/latest"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	v1 "k8s.io/api/core/v1"
@@ -125,12 +126,8 @@ func (b *Builder) setupDockerConfigSecret(out io.Writer) (func(), error) {
 	}, nil
 }
 
-func (b *Builder) setupAWSSecretSecret(out io.Writer) (func(), error) {
-	if b.AWSSecret == nil {
-		return func() {}, nil
-	}
-
-	color.Default.Fprintf(out, "Creating AWS secret [%s]...\n", b.AWSSecret.SecretName)
+func (b *Builder) setupSecret(secret latest.Secret, out io.Writer) (func(), error) {
+	color.Default.Fprintf(out, "Creating secret [%s]...\n", secret.Name)
 
 	client, err := kubernetes.GetClientset()
 	if err != nil {
@@ -139,38 +136,38 @@ func (b *Builder) setupAWSSecretSecret(out io.Writer) (func(), error) {
 
 	secrets := client.CoreV1().Secrets(b.Namespace)
 
-	if b.AWSSecret.Path == "" {
-		logrus.Debug("No AWS secret specified. Checking for one in the cluster.")
+	if secret.Path == "" {
+		logrus.Debug("No secret specified. Checking for one in the cluster.")
 
-		if _, err := secrets.Get(b.DockerConfig.SecretName, metav1.GetOptions{}); err != nil {
-			return nil, errors.Wrap(err, "checking for existing kaniko AWS secret")
+		if _, err := secrets.Get(secret.Name, metav1.GetOptions{}); err != nil {
+			return nil, errors.Wrap(err, "checking for existing secret")
 		}
 
 		return func() {}, nil
 	}
 
-	secretData, err := ioutil.ReadFile(b.AWSSecret.Path)
+	secretData, err := ioutil.ReadFile(secret.Path)
 	if err != nil {
-		return nil, errors.Wrap(err, "reading AWS secret")
+		return nil, errors.Wrap(err, "reading secret")
 	}
 
-	secret := &v1.Secret{
+	kubeSecret := &v1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:   b.AWSSecret.SecretName,
+			Name:   secret.Name,
 			Labels: map[string]string{"skaffold-kaniko": "skaffold-kaniko"},
 		},
 		Data: map[string][]byte{
-			"credentials": secretData,
+			secret.MountFileName: secretData,
 		},
 	}
 
-	if _, err := secrets.Create(secret); err != nil {
-		return nil, errors.Wrapf(err, "creating AWS secret: %s", err)
+	if _, err := secrets.Create(kubeSecret); err != nil {
+		return nil, errors.Wrapf(err, "creating secret: %s", err)
 	}
 
 	return func() {
-		if err := secrets.Delete(b.AWSSecret.SecretName, &metav1.DeleteOptions{}); err != nil {
-			logrus.Warnf("deleting AWS secret")
+		if err := secrets.Delete(secret.Name, &metav1.DeleteOptions{}); err != nil {
+			logrus.Warnf("deleting secret")
 		}
 	}, nil
 }

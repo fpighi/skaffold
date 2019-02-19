@@ -115,7 +115,7 @@ func podTemplate(cfg *latest.KanikoBuild, args []string) *v1.Pod {
 	for _, secret := range cfg.Secrets {
 		secretVolumeMount := v1.VolumeMount{
 			Name:      secret.Name,
-			MountPath: secret.MountPath,
+			MountPath: secret.Path,
 		}
 		pod.Spec.Containers[0].VolumeMounts = append(
 			pod.Spec.Containers[0].VolumeMounts,

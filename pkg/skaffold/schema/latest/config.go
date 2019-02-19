@@ -274,10 +274,9 @@ type DockerConfig struct {
 
 // Secret represens a Kubernetes secret that is mounted
 type Secret struct {
-	MountPath     string `yaml:"mountPath,omitempty"`
-	MountFileName string `yaml:"mapFileName,omitempty"`
-	Name          string `yaml:"name,omitempty"`
-	Path          string `yaml:"path,omitempty"`
+	Name      string `yaml:"name,omitempty"`
+	Path      string `yaml:"path,omitempty"`
+	MountPath string `yaml:"mountPath,omitempty"`
 }
 
 type TestConfig []*TestCase

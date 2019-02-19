@@ -151,10 +151,8 @@ build:
   #     path: path to the docker config.json
   #     secretName: docker-cfg
   #   secrets:
-  #   - name: aws-secret
-  #     path: path to the local AWS credentials
-  #     mountFileName: credentials
-  #     mountFilePath: /root/.aws/
+  #   - name: secret-name
+  #     path: local-secret-file
 
 # The test section has all the information needed to test images.
 test:

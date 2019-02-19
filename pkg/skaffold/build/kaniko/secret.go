@@ -157,7 +157,7 @@ func (b *Builder) setupSecret(secret latest.Secret, out io.Writer) (func(), erro
 			Labels: map[string]string{"skaffold-kaniko": "skaffold-kaniko"},
 		},
 		Data: map[string][]byte{
-			secret.MountFileName: secretData,
+			secret.MountPath: secretData,
 		},
 	}
 

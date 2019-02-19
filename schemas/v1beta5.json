@@ -357,19 +357,15 @@
     },
     "Secret": {
       "properties": {
-        "mountPath": {
-          "type": "string",
-          "default": "\"\""
-        },
-        "mapFileName": {
-          "type": "string",
-          "default": "\"\""
-        },
         "name": {
           "type": "string",
           "default": "\"\""
         },
         "path": {
+          "type": "string",
+          "default": "\"\""
+        },
+        "mountPath": {
           "type": "string",
           "default": "\"\""
         }
